@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package signIn;
+
+option go_package = "signIn";
+
+import "http.proto";
+
+message signInReq {
+  string email = 1;
+  optional string password = 2;
+  optional string code = 3;
+  string signInType = 4;
+}
+
+message signInResp {
+  string userId = 1;
+}
+
+message registerReq {
+  string email = 1;
+  string password = 2;
+  string code = 3;
+}
+
+message registerResp {
+  string userId = 1;
+}
+
+message resetPwReq {
+  string email = 1;
+  string password = 2;
+  string code = 3;
+}
+
+message resetPwResp {
+}
+
+service signInService {
+  rpc signIn(signInReq) returns(signInResp) {
+    option (http.get) = "/sign_in";
+  }
+  rpc register(registerReq) returns(registerResp) {
+    option (http.get) = "/register";
+  }
+  rpc resetPw(resetPwReq) returns(resetPwResp) {
+    option (http.get) = "/reset_pw";
+  }
+}
