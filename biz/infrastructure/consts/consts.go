@@ -14,4 +14,5 @@ var (
 	ErrCodeWrong     = status.Error(10004, "Code Wrong")
 	ErrPasswordWrong = status.Error(10005, "Password Wrong")
 	ErrEmailExist    = status.Error(10006, "Email already exist")
+	ErrEmailNotExist = status.Error(10006, "Email not exist")
 )

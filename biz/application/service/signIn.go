@@ -87,8 +87,30 @@ func (s *SignInService) SendCode(ctx context.Context, req *signIn.SendCodeReq) (
 }
 
 func (s *SignInService) ResetPw(ctx context.Context, req *signIn.ResetPwReq) (*signIn.ResetPwResp, error) {
-	//TODO implement me
-	panic("implement me")
+	r, err := s.Redis.GetCtx(ctx, req.Email)
+	if err != nil {
+		return nil, err
+	} else if r == "" {
+		return nil, consts.ErrCodeNotExist
+	} else {
+		if r == req.GetCode() {
+			user, err := s.UserMapper.FindByEmail(ctx, req.Email)
+			if errors.Is(err, mapper.ErrNotFound) {
+				return nil, consts.ErrEmailNotExist
+			} else if err != nil {
+				return nil, err
+			} else {
+				user.Password = req.Password
+				err := s.UserMapper.Update(ctx, user)
+				if err != nil {
+					return nil, err
+				}
+				return &signIn.ResetPwResp{}, nil
+			}
+		} else {
+			return nil, consts.ErrCodeWrong
+		}
+	}
 }
 
 func (s *SignInService) SignIn(ctx context.Context, req *signIn.SignInReq) (*signIn.SignInResp, error) {
