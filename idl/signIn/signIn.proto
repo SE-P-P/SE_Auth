@@ -4,7 +4,7 @@ package signIn;
 
 option go_package = "signIn";
 
-import "http.proto";
+import "idl/http.proto";
 
 message signInReq {
   string email = 1;
@@ -36,6 +36,13 @@ message resetPwReq {
 message resetPwResp {
 }
 
+message sendCodeReq {
+  string email = 1;
+}
+
+message sendCodeResp {
+}
+
 service signInService {
   rpc signIn(signInReq) returns(signInResp) {
     option (http.get) = "/sign_in";
@@ -45,5 +52,8 @@ service signInService {
   }
   rpc resetPw(resetPwReq) returns(resetPwResp) {
     option (http.get) = "/reset_pw";
+  }
+  rpc sendCode(sendCodeReq) returns(sendCodeResp) {
+    option (http.get) = "/send_code";
   }
 }

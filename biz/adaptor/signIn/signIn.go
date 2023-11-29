@@ -59,3 +59,19 @@ func ResetPw(ctx context.Context, c *app.RequestContext) {
 	resp, err := p.SignInService.ResetPw(ctx, &req)
 	c.JSON(consts.StatusOK, resp)
 }
+
+// SendCode .
+// @router /send_code [GET]
+func SendCode(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req signIn.SendCodeReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	p := provider.Get()
+	resp, err := p.SignInService.SendCode(ctx, &req)
+	c.JSON(consts.StatusOK, resp)
+}

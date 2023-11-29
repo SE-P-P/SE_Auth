@@ -21,6 +21,11 @@ func _resetpwMw() []app.HandlerFunc {
 	return nil
 }
 
+func _sendcodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _signinMw() []app.HandlerFunc {
 	// your code...
 	return nil
