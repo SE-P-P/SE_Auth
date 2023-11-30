@@ -49,13 +49,14 @@ type MailboxConf struct {
 
 func (s *SignInService) SendCode(ctx context.Context, req *signIn.SendCodeReq) (*signIn.SendCodeResp, error) {
 	var mailConf MailboxConf
-	mailConf.Title = "您的验证码"
 	mailConf.Recipient = req.GetEmail()
 	mailConf.Sender = s.Config.Email.Sender
 	mailConf.SPassword = s.Config.Email.Password
 	mailConf.SMTPPort = s.Config.Email.SMTPPort
+	mailConf.SMTPAddr = s.Config.Email.SMTPAddr
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	code := fmt.Sprintf("%06v", rnd.Int31n(1000000))
+	mailConf.Title = "您的SE验证码是" + code
 	err := s.Redis.SetexCtx(ctx, req.Email, code, 300)
 	if err != nil {
 		return nil, err
