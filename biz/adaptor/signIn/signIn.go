@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
+	"SEproject/biz/adaptor"
 	"SEproject/biz/application/dto/signIn"
 	"SEproject/provider"
 )
@@ -25,7 +26,7 @@ func SignIn(ctx context.Context, c *app.RequestContext) {
 
 	p := provider.Get()
 	resp, err := p.SignInService.SignIn(ctx, &req)
-	c.JSON(consts.StatusOK, resp)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
 }
 
 // Register .
@@ -41,7 +42,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 
 	p := provider.Get()
 	resp, err := p.SignInService.Register(ctx, &req)
-	c.JSON(consts.StatusOK, resp)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
 }
 
 // ResetPw .
@@ -57,7 +58,7 @@ func ResetPw(ctx context.Context, c *app.RequestContext) {
 
 	p := provider.Get()
 	resp, err := p.SignInService.ResetPw(ctx, &req)
-	c.JSON(consts.StatusOK, resp)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
 }
 
 // SendCode .
@@ -73,5 +74,5 @@ func SendCode(ctx context.Context, c *app.RequestContext) {
 
 	p := provider.Get()
 	resp, err := p.SignInService.SendCode(ctx, &req)
-	c.JSON(consts.StatusOK, resp)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -37,23 +38,22 @@ var SignInServiceSet = wire.NewSet(
 )
 
 type MailboxConf struct {
-	Title         string
-	Body          string
-	RecipientList []string
-	Sender        string
-	SPassword     string
-	SMTPAddr      string
-	SMTPPort      int
+	Title     string
+	Body      string
+	Recipient string
+	Sender    string
+	SPassword string
+	SMTPAddr  string
+	SMTPPort  int
 }
 
 func (s *SignInService) SendCode(ctx context.Context, req *signIn.SendCodeReq) (*signIn.SendCodeResp, error) {
 	var mailConf MailboxConf
 	mailConf.Title = "您的验证码"
-	mailConf.RecipientList = []string{req.Email}
+	mailConf.Recipient = req.GetEmail()
 	mailConf.Sender = s.Config.Email.Sender
 	mailConf.SPassword = s.Config.Email.Password
 	mailConf.SMTPPort = s.Config.Email.SMTPPort
-
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	code := fmt.Sprintf("%06v", rnd.Int31n(1000000))
 	err := s.Redis.SetexCtx(ctx, req.Email, code, 300)
@@ -76,10 +76,12 @@ func (s *SignInService) SendCode(ctx context.Context, req *signIn.SendCodeReq) (
 	m := gomail.NewMessage()
 
 	m.SetHeader(`From`, mailConf.Sender, "SE实践项目组")
-	m.SetHeader(`To`, mailConf.RecipientList...)
+	m.SetHeader(`To`, mailConf.Recipient)
 	m.SetHeader(`Subject`, mailConf.Title)
 	m.SetBody(`text/html`, html)
-	err = gomail.NewDialer(mailConf.SMTPAddr, mailConf.SMTPPort, mailConf.Sender, mailConf.SPassword).DialAndSend(m)
+	t := gomail.NewDialer(mailConf.SMTPAddr, mailConf.SMTPPort, mailConf.Sender, mailConf.SPassword)
+	t.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	err = t.DialAndSend(m)
 	if err != nil {
 		return nil, err
 	}

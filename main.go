@@ -13,6 +13,7 @@ func Init() {
 }
 
 func main() {
+	Init()
 	h := server.Default()
 
 	register(h)
