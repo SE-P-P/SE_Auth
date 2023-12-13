@@ -21,6 +21,7 @@ FROM alpine
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
 
 ENV TZ Asia/Shanghai
+ENV serverAddr 124.223.119.145
 
 WORKDIR /app
 COPY --from=builder /build/output /app

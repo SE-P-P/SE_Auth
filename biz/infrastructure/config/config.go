@@ -1,8 +1,9 @@
 package config
 
 import (
-	"os"
-
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -27,16 +28,45 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	c := new(Config)
-	path := os.Getenv("CONFIG_PATH")
-	if path == "" {
-		path = "etc/config.yaml"
+	sc := []constant.ServerConfig{{
+		IpAddr: "124.223.119.145",
+		Port:   8848,
+	}}
+
+	cc := constant.ClientConfig{
+		NamespaceId:         "",
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogDir:              "log",
+		LogLevel:            "error",
 	}
-	err := conf.Load(path, c)
+
+	configClient, err := clients.CreateConfigClient(map[string]interface{}{
+		"serverConfigs": sc,
+		"clientConfig":  cc,
+	})
 	if err != nil {
 		return nil, err
 	}
-	err = c.SetUp()
+
+	content, err := configClient.GetConfig(vo.ConfigParam{
+		DataId: "config.yaml",
+		Group:  "DEFAULT_GROUP",
+	})
+	config, err := SetConfig(content)
+	if err != nil {
+		return nil, err
+	}
+	err = config.SetUp()
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func SetConfig(content string) (config *Config, err error) {
+	c := new(Config)
+	err = conf.LoadFromYamlBytes([]byte(content), &c)
 	if err != nil {
 		return nil, err
 	}

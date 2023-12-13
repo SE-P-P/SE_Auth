@@ -3,8 +3,18 @@
 package main
 
 import (
-	"github.com/cloudwego/hertz/pkg/app/server"
+	"fmt"
 
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/hertz-contrib/registry/nacos"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+
+	"SEproject/biz/infrastructure/util"
+	"SEproject/biz/infrastructure/util/log"
 	"SEproject/provider"
 )
 
@@ -14,8 +24,71 @@ func Init() {
 
 func main() {
 	Init()
-	h := server.Default()
+
+	r, err := nacos.NewDefaultNacosRegistry(
+		nacos.WithRegistryCluster("Nacos"),
+	)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	sc := []constant.ServerConfig{{
+		IpAddr: "124.223.119.145",
+		Port:   8848,
+	}}
+
+	cc := constant.ClientConfig{
+		NamespaceId:         "",
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogDir:              "log",
+		CacheDir:            "cache",
+		LogLevel:            "debug",
+	}
+
+	configClient, err := clients.CreateConfigClient(map[string]interface{}{
+		"serverConfigs": sc,
+		"clientConfig":  cc,
+	})
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+	util.ParallelRun([]func(){
+		func() {
+			err = configClient.ListenConfig(vo.ConfigParam{
+				DataId: "config.yaml",
+				Group:  "DEFAULT_GROUP",
+				OnChange: func(namespace, group, dataId, data string) {
+					log.Info("配置文件发生了变化...")
+					log.Info("group:" + group + ", dataId:" + dataId + ", data:" + data)
+					Init()
+				},
+			})
+		},
+	})
+
+	err = configClient.ListenConfig(vo.ConfigParam{
+		DataId: "config.yaml",
+		Group:  "DEFAULT_GROUP",
+		OnChange: func(namespace, group, dataId, data string) {
+			fmt.Println("配置文件发生了变化...")
+			fmt.Println("group:" + group + ", dataId:" + dataId + ", data:" + data)
+			Init()
+		},
+	})
+
+	h := server.Default(
+		server.WithRegistry(r, &registry.Info{
+			ServiceName: "signIn",
+			Addr:        utils.NewNetAddr("tcp", "124.223.119.145:8848"),
+			Weight:      10,
+			Tags:        nil,
+		}),
+	)
 
 	register(h)
+	log.Info("server start")
 	h.Spin()
 }
