@@ -3,15 +3,15 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/hertz-contrib/registry/nacos"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
+	logx "github.com/xh-polaris/gopkg/util/log"
 
 	"SEproject/biz/infrastructure/util"
 	"SEproject/biz/infrastructure/util/log"
@@ -20,6 +20,7 @@ import (
 
 func Init() {
 	provider.Init()
+	hlog.SetLogger(logx.NewHlogLogger())
 }
 
 func main() {
@@ -63,19 +64,9 @@ func main() {
 				OnChange: func(namespace, group, dataId, data string) {
 					log.Info("配置文件发生了变化...")
 					log.Info("group:" + group + ", dataId:" + dataId + ", data:" + data)
-					Init()
+					provider.Init()
 				},
 			})
-		},
-	})
-
-	err = configClient.ListenConfig(vo.ConfigParam{
-		DataId: "config.yaml",
-		Group:  "DEFAULT_GROUP",
-		OnChange: func(namespace, group, dataId, data string) {
-			fmt.Println("配置文件发生了变化...")
-			fmt.Println("group:" + group + ", dataId:" + dataId + ", data:" + data)
-			Init()
 		},
 	})
 
