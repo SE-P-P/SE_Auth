@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/bytedance/gopkg v0.0.0-20230531144706-a12972768317
-	github.com/cloudwego/hertz v0.7.2
+	github.com/cloudwego/hertz v0.7.3
 	github.com/google/wire v0.5.0
 	github.com/hertz-contrib/registry/nacos v0.0.0-20231110170354-519baf74ea6b
 	github.com/nacos-group/nacos-sdk-go v1.1.4
@@ -15,7 +15,6 @@ require (
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
