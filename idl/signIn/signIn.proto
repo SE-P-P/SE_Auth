@@ -43,6 +43,23 @@ message sendCodeReq {
 message sendCodeResp {
 }
 
+message saveReq {
+  string db = 1;
+  string id = 2;
+  string content = 3;
+}
+
+message saveResp {
+}
+
+message loadReq {
+  string id = 1;
+}
+
+message loadResp {
+  repeated string content = 1;
+}
+
 service signInService {
   rpc signIn(signInReq) returns(signInResp) {
     option (http.get) = "/sign_in";
@@ -55,5 +72,11 @@ service signInService {
   }
   rpc sendCode(sendCodeReq) returns(sendCodeResp) {
     option (http.get) = "/send_code";
+  }
+  rpc save(saveReq) returns(saveResp) {
+    option (http.post) = "/save";
+  }
+  rpc load(loadReq) returns(loadResp) {
+    option (http.get) = "/load";
   }
 }

@@ -11,12 +11,22 @@ func rootMw() []app.HandlerFunc {
 	return nil
 }
 
+func _loadMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _registerMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
 func _resetpwMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _saveMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

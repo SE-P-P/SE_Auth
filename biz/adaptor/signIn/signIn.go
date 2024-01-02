@@ -76,3 +76,35 @@ func SendCode(ctx context.Context, c *app.RequestContext) {
 	resp, err := p.SignInService.SendCode(ctx, &req)
 	adaptor.PostProcess(ctx, c, &req, resp, err)
 }
+
+// Save .
+// @router /save [POST]
+func Save(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req signIn.SaveReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	p := provider.Get()
+	resp, err := p.SignInService.Save(ctx, &req)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
+}
+
+// Load .
+// @router /load [GET]
+func Load(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req signIn.LoadReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	p := provider.Get()
+	resp, err := p.SignInService.Load(ctx, &req)
+	adaptor.PostProcess(ctx, c, &req, resp, err)
+}

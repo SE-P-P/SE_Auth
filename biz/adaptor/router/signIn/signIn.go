@@ -18,8 +18,10 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
+	root.GET("/load", append(_loadMw(), signIn.Load)...)
 	root.GET("/register", append(_registerMw(), signIn.Register)...)
 	root.GET("/reset_pw", append(_resetpwMw(), signIn.ResetPw)...)
+	root.POST("/save", append(_saveMw(), signIn.Save)...)
 	root.GET("/send_code", append(_sendcodeMw(), signIn.SendCode)...)
 	root.GET("/sign_in", append(_signinMw(), signIn.SignIn)...)
 }

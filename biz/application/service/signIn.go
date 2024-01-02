@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"crypto/tls"
+	"database/sql"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -24,18 +25,174 @@ type ISignInService interface {
 	SignIn(ctx context.Context, req *signIn.SignInReq) (*signIn.SignInResp, error)
 	Register(ctx context.Context, req *signIn.RegisterReq) (*signIn.RegisterResp, error)
 	SendCode(ctx context.Context, req *signIn.SendCodeReq) (*signIn.SendCodeResp, error)
+	Save(ctx context.Context, req *signIn.SaveReq) (*signIn.SaveResp, error)
+	Load(ctx context.Context, req *signIn.LoadReq) (*signIn.LoadResp, error)
 }
 
 type SignInService struct {
 	Config     *config.Config
 	UserMapper mapper.SignInModel
 	Redis      *redis.Redis
+	SaveMapper mapper.SaveModel
 }
 
 var SignInServiceSet = wire.NewSet(
 	wire.Struct(new(SignInService), "*"),
 	wire.Bind(new(ISignInService), new(*SignInService)),
 )
+
+func (s *SignInService) Save(ctx context.Context, req *signIn.SaveReq) (*signIn.SaveResp, error) {
+	id, err := strconv.ParseInt(req.GetId(), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	db, err := s.SaveMapper.FindOne(ctx, id)
+	if req.GetDb() == "1" {
+		if err != nil {
+			if errors.Is(err, mapper.ErrNotFound) {
+				_, err = s.SaveMapper.Insert(ctx, &mapper.Save{
+					Id:  id,
+					Db1: sql.NullString{String: req.GetContent(), Valid: true},
+					Db2: sql.NullString{},
+					Db3: sql.NullString{},
+					Db4: sql.NullString{},
+					Db5: sql.NullString{},
+				})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			db.Db1.String = req.GetContent()
+			db.Db1.Valid = true
+			err = s.SaveMapper.Update(ctx, db)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else if req.GetDb() == "2" {
+		if err != nil {
+			if errors.Is(err, mapper.ErrNotFound) {
+				_, err = s.SaveMapper.Insert(ctx, &mapper.Save{
+					Id:  id,
+					Db1: sql.NullString{},
+					Db2: sql.NullString{String: req.GetContent(), Valid: true},
+					Db3: sql.NullString{},
+					Db4: sql.NullString{},
+					Db5: sql.NullString{},
+				})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			db.Db2.String = req.GetContent()
+			db.Db2.Valid = true
+			err = s.SaveMapper.Update(ctx, db)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else if req.GetDb() == "3" {
+		if err != nil {
+			if errors.Is(err, mapper.ErrNotFound) {
+				_, err = s.SaveMapper.Insert(ctx, &mapper.Save{
+					Id:  id,
+					Db1: sql.NullString{},
+					Db2: sql.NullString{},
+					Db3: sql.NullString{String: req.GetContent(), Valid: true},
+					Db4: sql.NullString{},
+					Db5: sql.NullString{},
+				})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			db.Db3.String = req.GetContent()
+			db.Db3.Valid = true
+			err = s.SaveMapper.Update(ctx, db)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else if req.GetDb() == "4" {
+		if err != nil {
+			if errors.Is(err, mapper.ErrNotFound) {
+				_, err = s.SaveMapper.Insert(ctx, &mapper.Save{
+					Id:  id,
+					Db1: sql.NullString{},
+					Db2: sql.NullString{},
+					Db3: sql.NullString{},
+					Db4: sql.NullString{String: req.GetContent(), Valid: true},
+					Db5: sql.NullString{},
+				})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			db.Db4.String = req.GetContent()
+			db.Db4.Valid = true
+			err = s.SaveMapper.Update(ctx, db)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else if req.GetDb() == "5" {
+		if err != nil {
+			if errors.Is(err, mapper.ErrNotFound) {
+				_, err = s.SaveMapper.Insert(ctx, &mapper.Save{
+					Id:  id,
+					Db1: sql.NullString{},
+					Db2: sql.NullString{},
+					Db3: sql.NullString{},
+					Db4: sql.NullString{},
+					Db5: sql.NullString{String: req.GetContent(), Valid: true},
+				})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			db.Db5.String = req.GetContent()
+			db.Db5.Valid = true
+			err = s.SaveMapper.Update(ctx, db)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return &signIn.SaveResp{}, nil
+}
+
+func (s *SignInService) Load(ctx context.Context, req *signIn.LoadReq) (*signIn.LoadResp, error) {
+	id, err := strconv.ParseInt(req.GetId(), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	db, err := s.SaveMapper.FindOne(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	content := make([]string, 0)
+	content = append(content, db.Db1.String)
+	content = append(content, db.Db2.String)
+	content = append(content, db.Db3.String)
+	content = append(content, db.Db4.String)
+	content = append(content, db.Db5.String)
+	return &signIn.LoadResp{Content: content}, nil
+}
 
 type MailboxConf struct {
 	Title     string

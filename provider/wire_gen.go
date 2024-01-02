@@ -22,10 +22,12 @@ func NewProvider() (*Provider, error) {
 	}
 	signInModel := mapper.NewSignInModel(configConfig)
 	redisRedis := redis.NewRedis(configConfig)
+	saveModel := mapper.NewSaveModel(configConfig)
 	signInService := &service.SignInService{
 		Config:     configConfig,
 		UserMapper: signInModel,
 		Redis:      redisRedis,
+		SaveMapper: saveModel,
 	}
 	providerProvider := &Provider{
 		Config:        configConfig,

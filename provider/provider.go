@@ -36,6 +36,7 @@ var ApplicationSet = wire.NewSet(
 var InfrastructureSet = wire.NewSet(
 	config.NewConfig,
 	mapper.NewSignInModel,
+	mapper.NewSaveModel,
 	redis.NewRedis,
 )
 
