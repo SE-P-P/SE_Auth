@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/bytedance/gopkg v0.0.0-20230531144706-a12972768317
-	github.com/cloudwego/hertz v0.7.2
+	github.com/cloudwego/hertz v0.8.0
 	github.com/google/wire v0.5.0
 	github.com/hertz-contrib/registry/nacos v0.0.0-20231110170354-519baf74ea6b
 	github.com/nacos-group/nacos-sdk-go v1.1.4
